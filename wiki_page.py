@@ -15,18 +15,27 @@ class WikiPage:
     def identify_page_at_cursor(self):
         for region in self.view.sel():
             text_on_cursor = None
-
             pos = region.begin()
             scope_region = self.view.extract_scope(pos)
             if not scope_region.empty():
                 text_on_cursor = self.view.substr(scope_region)
-                return text_on_cursor.strip(string.punctuation)
+                lines = text_on_cursor.split("\n")
+                if(len(lines)>1):
+                    print("please click on word first")
+                    return self.view.sel()
+                else:    
+                    return text_on_cursor.strip(string.punctuation)
 
         return None
-
+        
+# a[[ok]]c
     def select_page(self, pagename):
+        pagename = re.sub(r'.*\[','',pagename)
+        pagename = re.sub(r'\].*','',pagename)
         print("Open page: %s" % (pagename))
-
+        if "\n" in pagename:
+            print("newline in pagename … abort!")
+            return []
         if pagename:
             self.file_list = self.find_files_with_name(pagename)
 
@@ -39,27 +48,44 @@ class WikiPage:
 
 
     def find_files_with_name(self, pagename):
+        if "\n" in pagename:
+            print("newline in pagename … abort!")
+            return []
         pagename = pagename.replace('\\', os.sep).replace(os.sep+os.sep, os.sep).strip()
 
         self.current_file = self.view.file_name()
-        self.current_dir = os.path.dirname(self.current_file)
+        try:
+            self.current_dir = os.path.dirname(self.current_file)
+        except:
+            self.current_dir = os.path.dirname(".")
+        if "uruk_egypt" in self.current_dir and not "docs" in self.current_dir:
+            self.current_dir = os.path.dirname("/Users/me/Documents/uruk_egypt/docs/")
         print("Locating page '%s' in: %s" % (pagename, self.current_dir) )
 
         markdown_extension = self.view.settings().get("mde.wikilinks.markdown_extension", DEFAULT_MARKDOWN_EXTENSION)
 
+
         # Optionally strip extension...
-        if pagename.endswith(markdown_extension):
-            search_pattern = "^%s$" % pagename
-        else:
-            search_pattern = "^%s%s$" % (pagename, markdown_extension)
+        try:
+            if pagename.endswith(markdown_extension):
+                search_pattern = "^%s$" % pagename
+            else:
+                search_pattern = "^%s%s$" % (pagename, markdown_extension)
+        except: pass
 
         # Scan directory tree for files that match the pagename...
         results = []
         for dirname, _, files in self.list_dir_tree(self.current_dir):
             for file in files:
-                if re.search(search_pattern, file):
+                if re.search(search_pattern, file, re.IGNORECASE):
                     filename = os.path.join(dirname, file)
-                    results.append([self.extract_page_name(filename), filename])
+                    results.append([self.extract_pagename(filename), filename])
+
+        for dirname, _, files in self.list_dir_tree(self.current_dir+"/auto"):
+            for file in files:
+                if re.search(search_pattern, file, re.IGNORECASE):
+                    filename = os.path.join(dirname, file)
+                    results.append([self.extract_pagename(filename), filename])
 
         return results
 
@@ -73,16 +99,16 @@ class WikiPage:
         results = []
         for dirname, _, files in self.list_dir_tree(self.current_dir):
             for file in files:
-                page_name, extension = os.path.splitext(file)
+                pagename, extension = os.path.splitext(file)
                 filename = os.path.join(dirname, file)
                 if extension == markdown_extension and self.contains_ref(filename, self.current_name):
-                    results.append([page_name, filename])
+                    results.append([pagename, filename])
 
         return results
 
 
-    def contains_ref(self, filename, page_name):
-        link_text = PAGE_REF_FORMAT % page_name
+    def contains_ref(self, filename, pagename):
+        link_text = PAGE_REF_FORMAT % pagename
 
         try:
             if link_text in open(filename).read():
@@ -106,7 +132,13 @@ class WikiPage:
     def open_new_file(self, pagename):
         current_syntax = self.view.settings().get('syntax')
         current_file = self.view.file_name()
-        current_dir = os.path.dirname(current_file)
+        try:
+            current_dir = os.path.dirname(current_file)
+        except:
+            current_dir = os.path.dirname(".")
+
+        if "uruk_egypt" in current_dir and not "docs" in current_dir:
+            current_dir = os.path.dirname("/Users/me/Documents/uruk_egypt/docs/")
 
         markdown_extension = self.view.settings().get("mde.wikilinks.markdown_extension", DEFAULT_MARKDOWN_EXTENSION)
 
@@ -132,11 +164,14 @@ class WikiPage:
             print("Opening file '%s'" % (file))
             self.view.window().open_file(file)
 
-    def extract_page_name(self, filename):
+# abc[[ok]]def
+    def extract_pagename(self, filename):
         _, base_name = os.path.split(filename)
-        page_name, _ = os.path.splitext(base_name)
-
-        return page_name;
+        pagename, _ = os.path.splitext(base_name)
+        # pagename = pagename.replace("[[","").replace("]]","")
+        pagename = re.sub(r'.*\[','',pagename)
+        pagename = re.sub(r'\].*','',pagename)
+        return pagename;
 
 
     def list_dir_tree(self, directory):
@@ -146,6 +181,7 @@ class WikiPage:
 
     def select_word_at_cursor(self):
         word_region = None
+        print("select_word_at_cursor")
 
         selection = self.view.sel()
         for region in selection:
@@ -166,10 +202,10 @@ class WikiPage:
 
     def replace_selection_with_pagename(self, selected_index):
         if selected_index != -1:
-            page_name, file = self.file_list[selected_index]
+            pagename, file = self.file_list[selected_index]
             
-            print("Using selected page '%s'" % (page_name))
-            self.view.run_command('replace_selected', {'text': page_name})
+            print("Using selected page '%s'" % (pagename))
+            self.view.run_command('replace_selected', {'text': pagename})
 
 
     def find_matching_files(self, word_region):
@@ -189,11 +225,11 @@ class WikiPage:
         results = []
         for dirname, _, files in self.list_dir_tree(current_dir):
             for file in files:
-                page_name, extension = os.path.splitext(file)
+                pagename, extension = os.path.splitext(file)
                 filename = os.path.join(dirname, file)
 
-                if extension == markdown_extension and (not word or word in page_name):
-                    results.append([page_name, filename])
+                if extension == markdown_extension and (not word or word in pagename):
+                    results.append([pagename, filename])
 
         return results
 

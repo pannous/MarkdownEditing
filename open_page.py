@@ -17,6 +17,7 @@ except ImportError:
 
 class OpenPageCommand(MDETextCommand):
     def is_visible(self):
+        # return True      catastrophic!          
         """Return True if cursor is on a wiki page reference."""
         for sel in self.view.sel():
             scopes = self.view.scope_name(sel.b).split(" ")
@@ -31,6 +32,8 @@ class OpenPageCommand(MDETextCommand):
 
         sel_region = self.get_selected()
         if sel_region:
+            print("SEL")
+            print(sel_region)
             wiki_page.select_word_at_cursor()
 
             region = sublime.Region(sel_region.begin(), sel_region.begin())
@@ -40,6 +43,8 @@ class OpenPageCommand(MDETextCommand):
                 wiki_page.show_quick_list(file_list)
         else:
             name = wiki_page.identify_page_at_cursor()
+            print("PAGE")
+            print(name)
             wiki_page.select_page(name)
 
 

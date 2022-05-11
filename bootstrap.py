@@ -105,8 +105,9 @@ This [[SamplePage]] is a wiki link
     themes_display = [re.search('[^/]+(?=\.tmTheme$)', s).group(0) + (' (Current)' if s == default_mde_scheme else '') + (' (Global)' if s == global_scheme else '') for s in themes]
 
     def set_scheme(scheme):
-        view.settings().set('color_scheme', scheme)
-        sublime.load_settings('Markdown.sublime-settings').set('color_scheme', scheme)
+        print("ignoring custom Markdown color_scheme "+ scheme)
+        # view.settings().set('color_scheme', scheme)
+        # sublime.load_settings('Markdown.sublime-settings').set('color_scheme', scheme)
 
     def on_done(index):
         if index == -1:

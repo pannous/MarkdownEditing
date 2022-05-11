@@ -162,6 +162,10 @@
         "command": "open_page"
     },
     {
+        "caption": "MarkdownEditing: Open URL",
+        "command": "open_url"
+    },
+    {
         "caption": "MarkdownEditing: List Back Links",
         "command": "list_back_links"
     },
