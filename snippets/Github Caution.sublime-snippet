@@ -1,0 +1,9 @@
+<snippet>
+	<content><![CDATA[> [!CAUTION]
+>
+> ${0:enter text}
+]]></content>
+	<tabTrigger>ghcaution</tabTrigger>
+	<scope>text.html.markdown - meta.frontmatter - meta.disable-markdown - meta.code-fence - markup.raw</scope>
+	<description>Github Alert</description>
+</snippet>

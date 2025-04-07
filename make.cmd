@@ -52,18 +52,15 @@ goto :usage
 
 :RELEASE
     if "%2"== "" goto :usage
-    if not exist "messages/release-%2.md" (
-        echo Missing release-%2.md
+
+    git checkout st3176 && git merge st3-develop --no-ff
+    if not errorlevel 0 (
+        echo Unable to merge st3-develop into st3176!
         exit /b 1
     )
-    git checkout st3176 && git merge %2 --no-ff
+    git checkout master && git merge st4-develop --no-ff
     if not errorlevel 0 (
-        echo Unable to merge %2 into st3176!
-        exit /b 1
-    )
-    git checkout master && git merge %2 --no-ff
-    if not errorlevel 0 (
-        echo Unable to merge %2 into master!
+        echo Unable to merge st4-develop into master!
         exit /b 1
     )
     echo Hit any key to push branches!
@@ -78,12 +75,29 @@ goto :usage
         echo Failed to push master!
         exit /b 1
     )
-    echo Hit any key to publish release!
-    pause
-    : create release for ST3
-    gh release create --target st3176 -t "MarkdownEditing %2 (ST3176+)" -F "messages/release-%2.md" "3176-%2"
-    : create release for ST3
-    gh release create --target master -t "MarkdownEditing %2 (ST4107+)" -F "messages/release-%2.md" "4107-%2"
+
+    for %%d in ("%~dp0.") do set package=%%~nxd
+
+    echo Createing assets for "%package%"...
+
+    :: create downloadable asset for ST4126+
+    set build=3176
+    set archive=%package%-%2-st%build%.sublime-package
+    set assets="%archive%#%archive%"
+    call git tag -f %build%-%2 st%build%
+    call git archive --format zip -o "%archive%" %build%-%2
+
+    :: create downloadable asset for ST4134+
+    set build=4107
+    set archive=%package%-%2-st%build%.sublime-package
+    set assets=%assets% "%archive%#%archive%"
+    call git tag -f %build%-%2 master
+    call git archive --format zip -o "%archive%" %build%-%2
+
+    :: create the release
+    call git push --tags --force
+    gh release create --target master -t "%package% %2" "%build%-%2" %assets%
+    del /f /q *.sublime-package
     git fetch
     goto :eof
 

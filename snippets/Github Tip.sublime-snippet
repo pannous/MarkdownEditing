@@ -1,0 +1,9 @@
+<snippet>
+	<content><![CDATA[> [!TIP]
+>
+> ${0:enter text}
+]]></content>
+	<tabTrigger>ghtip</tabTrigger>
+	<scope>text.html.markdown - meta.frontmatter - meta.disable-markdown - meta.code-fence - markup.raw</scope>
+	<description>Github Alert</description>
+</snippet>

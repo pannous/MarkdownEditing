@@ -21,19 +21,18 @@ on:
 jobs:
   lint:
     name: Python ${{ matrix.python }}
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         python:
-          - '3.3'
           - '3.8'
         arch:
           - 'x64'
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
           architecture: ${{ matrix.arch }}
@@ -41,6 +40,5 @@ jobs:
         run: pip install -r tests/requirements.txt
       - name: Run black
         run: python -m black --check .
-        if: ${{ matrix.python == '3.8' }}
       - name: Run flake8
         run: python -m flake8

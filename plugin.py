@@ -28,14 +28,13 @@ else:
         MdeSelectColorSchemeCommand,
     )
     from .plugins.folding import (
+        MdeAutoFoldListener,
         MdeFoldAllSectionsCommand,
         MdeFoldLinksCommand,
-        MdeFoldLinksListener,
         MdeFoldSectionCommand,
-        MdeFoldSectionContextCommand,
         MdeShowFoldAllSectionsCommand,
         MdeUnfoldAllSectionsCommand,
-        MdeUnfoldSectionContextCommand,
+        MdeUnfoldSectionCommand,
     )
     from .plugins.footnotes import (
         MdeGatherMissingFootnotesCommand,
@@ -110,8 +109,11 @@ else:
     )
 
     def plugin_loaded():
-        load_logger()
-        on_after_install()
+        def worker():
+            load_logger()
+            on_after_install()
+
+        sublime.set_timeout(worker, 10)
 
     def plugin_unloaded():
         unload_logger()

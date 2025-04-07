@@ -107,10 +107,10 @@ or use one of the following bindings:
 
 | Linux/Windows | MacOS | Description
 |---------------|-------|-------------
-| <kbd>Alt</kbd> + <kbd>k</kbd>, <kbd>Alt</kbd> + <kbd>0</kbd> | <kbd>^</kbd> + <kbd>k</kbd>, <kbd>^</kbd> + <kbd>0</kbd> | convert headings into normal text
-| <kbd>Alt</kbd> + <kbd>k</kbd>, <kbd>Alt</kbd> + <kbd>1..6</kbd> | <kbd>^</kbd> + <kbd>k</kbd>, <kbd>^</kbd> + <kbd>1..6</kbd> | set headings level to 1..6
-| <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>,</kbd> | <kbd>⇧</kbd> + <kbd>^</kbd> + <kbd>,</kbd> | reduce headings level by one
-| <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>.</kbd> | <kbd>⇧</kbd> + <kbd>^</kbd> + <kbd>.</kbd> | increase headings level by one
+| <kbd>Alt</kbd> + <kbd>k</kbd>, <kbd>Alt</kbd> + <kbd>0</kbd> | <kbd>⌃</kbd> + <kbd>k</kbd>, <kbd>⌃</kbd> + <kbd>0</kbd> | convert headings into normal text
+| <kbd>Alt</kbd> + <kbd>k</kbd>, <kbd>Alt</kbd> + <kbd>1..6</kbd> | <kbd>⌃</kbd> + <kbd>k</kbd>, <kbd>⌃</kbd> + <kbd>1..6</kbd> | set headings level to 1..6
+| <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>,</kbd> | <kbd>⇧</kbd> + <kbd>⌃</kbd> + <kbd>,</kbd> | reduce headings level by one
+| <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>.</kbd> | <kbd>⇧</kbd> + <kbd>⌃</kbd> + <kbd>.</kbd> | increase headings level by one
 
 Key bindings can be disabled via `"mde.keymap_disable.set_heading_level": true`.
 
@@ -133,14 +133,21 @@ Adding or removing `#` at the beginning of lines also modifies heading levels im
 
 Irrelevant sections of documents can be folded/collapsed via Command Palette:
 
-*   **MarkdownEditing: Toggle Folding Current Section**  
-    Whether child sections are folded or unfolded as well depends on folding level defined by calling one of the following commands.
+*   **MarkdownEditing: Fold Current Section**  
+    Whether child sections are folded depends on folding level defined by calling one of the following commands.
 
-    If `Fold All Sections` was called before _("outline mode" is active)_, the region between current and following sibling or child heading is (un)folded only.
+    If `Fold All Sections` was called before _("outline mode" is active)_, the region between current and following sibling or child heading is folded only.
+
+    If `Unfold All Sections` was called before, all child sections are folded.
+
+*   **MarkdownEditing: Unfold Current Section**  
+    Whether child sections are unfolded depends on folding level defined by calling one of the following commands.
+
+    If `Fold All Sections` was called before _("outline mode" is active)_, the region between current and following sibling or child heading is unfolded only.
 
     If `Fold Level 1-6 Sections` was called before, all child sections with lower level keep folded when unfolding their parent section.
 
-    If `Unfold All Sections` was called before, all child sections are (un)folded.
+    If `Unfold All Sections` was called before, all child sections are unfolded.
 
 *   **MarkdownEditing: Fold Level 1-6 Sections**  
     Folds all sections of headings of specific level. Also hides lower level headings.
@@ -155,11 +162,12 @@ Folding is bound to following keys by default:
 
 | Linux/Windows | MacOS | Description
 |---------------|-------|-------------
-| <kbd>Ctrl</kbd> + <kbd>k</kbd>, <kbd>Ctrl</kbd> + <kbd>0</kbd> | <kbd>⌥</kbd> + <kbd>k</kbd>, <kbd>⌥</kbd> + <kbd>0</kbd> | Unfold all sections
-| <kbd>Ctrl</kbd> + <kbd>k</kbd>, <kbd>Ctrl</kbd> + <kbd>1..6</kbd> | <kbd>⌥</kbd> + <kbd>k</kbd>, <kbd>⌥</kbd> + <kbd>1..6</kbd> | Fold sections by level 1..6
-| <kbd>Ctrl</kbd> + <kbd>k</kbd>, <kbd>Ctrl</kbd> + <kbd>9</kbd> | <kbd>⌥</kbd> + <kbd>k</kbd>, <kbd>⌥</kbd> + <kbd>9</kbd> | Fold all sections, but keep headings of any level visible
-| <kbd>Shift</kbd> + <kbd>Tab</kbd> | <kbd>⇧</kbd> + <kbd>Tab</kbd> | Fold/Unfold current section.
-| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Tab</kbd> | <kbd>^</kbd> + <kbd>⇧</kbd> + <kbd>Tab</kbd> | Fold all sections under headings of a certain level.
+| <kbd>Ctrl</kbd> + <kbd>k</kbd>, <kbd>Ctrl</kbd> + <kbd>0</kbd> | <kbd>⌘</kbd> + <kbd>k</kbd>, <kbd>⌘</kbd> + <kbd>0</kbd> | Unfold all sections
+| <kbd>Ctrl</kbd> + <kbd>k</kbd>, <kbd>Ctrl</kbd> + <kbd>1..6</kbd> | <kbd>⌘</kbd> + <kbd>k</kbd>, <kbd>⌘</kbd> + <kbd>1..6</kbd> | Fold sections by level 1..6
+| <kbd>Ctrl</kbd> + <kbd>k</kbd>, <kbd>Ctrl</kbd> + <kbd>9</kbd> | <kbd>⌘</kbd> + <kbd>k</kbd>, <kbd>⌘</kbd> + <kbd>9</kbd> | Fold all sections, but keep headings of any level visible
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>[</kbd> | <kbd>⌘</kbd> + <kbd>⌥</kbd> + <kbd>Tab</kbd> | Fold current section.
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>]</kbd> | <kbd>⌘</kbd> + <kbd>⌥</kbd> + <kbd>Tab</kbd> | Unfold current section.
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Tab</kbd> | <kbd>⌃</kbd> + <kbd>⇧</kbd> + <kbd>Tab</kbd> | Fold all sections under headings of a certain level.
 
 ## Automatic Link Url Folding
 
@@ -180,6 +188,25 @@ The folding selector can be tweaked in order to add or remove certain kinds of u
 ```jsonc
     "mde.auto_fold_link.selector": "( meta.image | meta.link ) & ( markup.underline | constant.other) - meta.link.reference.footnote - meta.link.reference.def - meta.link.inet",
 ```
+
+## Automatic Section Folding
+
+MarkdownEditing can automatically fold sections when loading a document.
+
+To globally enable it, add the following setting to _Perferences.sublime-settings_
+
+```jsonc
+    "mde.auto_fold_sections.level": 0,  // TOC mode
+```
+
+Valid values are:
+
+| Value | Description
+| :---: | ---
+| false | disable auto-folding on load
+| true  | fold headings by level 1
+|   0   | fold all sections, but keep headings visible (outline/toc mode, like <kbd>ctrl+k, ctrl+9</kbd>)
+| 1..6  | fold headings by level (like <kbd>ctrl+k, ctrl+1..6</kbd>)
 
 ## Navigation
 
@@ -239,7 +266,7 @@ Following key bindings may be used to create or toggle tasks.
 | Linux/Windows | MacOS | Description
 |---------------|-------|-------------
 | <kbd>Alt</kbd> + <kbd>t</kbd>  | <kbd>⌘</kbd> + <kbd>⌥</kbd> + <kbd>t</kbd> | Creates new GFM task (`* [ ] task`)
-| <kbd>Alt</kbd> + <kbd>x</kbd>  | <kbd>⌘</kbd> + <kbd>⌥</kbd> + <kbd>x</kbd> | Toggles GFM task check marks (`* [X] task`)
+| <kbd>Alt</kbd> + <kbd>x</kbd>  | <kbd>⌘</kbd> + <kbd>⌥</kbd> + <kbd>x</kbd> | Toggles GFM task check marks (`* [x] task`)
 
 # References
 
@@ -345,8 +372,8 @@ Lastly the command to open the *home* page is provided, where the home page is j
 | Linux/Windows | MacOS | Description
 |---------------|-------|-------------
 | <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>H</kbd> | <kbd>⌘</kbd> + <kbd>⌥</kbd> + <kbd>H</kbd> | Open home page
-| <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>D</kbd> | <kbd>⌘</kbd> + <kbd>⌥</kbd> + <kbd>D</kbd> | Open wiki page under the cursor
 | <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>J</kbd> | <kbd>⌘</kbd> + <kbd>⌥</kbd> + <kbd>J</kbd> | Open journal page for today
-| <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>X</kbd> | <kbd>⌘</kbd> + <kbd>⌥</kbd> + <kbd>B</kbd> | List back links
+| <kbd>f12</kbd> | <kbd>f12</kbd>  | Open wiki page under cursor
+| <kbd>Shift</kbd> + <kbd>f12</kbd> | <kbd>⇧</kbd> + <kbd>f12</kbd> | List back links
 
 _Note: The key bindings are disabled via Preferences by default to prevent conflicts with certain keyboard layouts._

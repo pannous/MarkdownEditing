@@ -23,16 +23,23 @@ on:
 jobs:
   syntax_tests:
     name: Sublime Text ${{ matrix.build }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15 # default is 6 hours!
     strategy:
       matrix:
         include:
           - build: 4107
             default_packages: v4107
+          - build: 4126
+            default_packages: v4126
+          - build: 4152
+            default_packages: v4152
+          - build: 4169
+            default_packages: v4169
           - build: latest
             default_packages: master
-    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: SublimeText/syntax-test-action@v2
         with:
           build: ${{ matrix.build }}

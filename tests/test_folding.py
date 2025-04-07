@@ -158,10 +158,11 @@ class FoldingTestCase(DereferrablePanelTestCase):
         self.assertFoldedRegions([(11, 470)])
 
         # unfold heading
-        self.view.run_command("mde_fold_section")
+        self.view.run_command("mde_unfold_section")
         self.assertFoldedRegions([(37, 52), (184, 199), (367, 382), (417, 432)])
 
         # setup test
+        self.setCaretTo(row, col)
         self.view.settings().set("mde.auto_fold_link.enabled", False)
 
         # fold heading
@@ -169,7 +170,7 @@ class FoldingTestCase(DereferrablePanelTestCase):
         self.assertFoldedRegions([(11, 470)])
 
         # unfold heading
-        self.view.run_command("mde_fold_section")
+        self.view.run_command("mde_unfold_section")
         self.assertFoldedRegions([])
 
     # test folding and unfolding setext heading level 1
@@ -203,7 +204,7 @@ class FoldingTestCase(DereferrablePanelTestCase):
         self.assertFoldedRegions([(522, 610)])
 
         # unfold heading
-        self.view.run_command("mde_fold_section")
+        self.view.run_command("mde_unfold_section")
         self.assertFoldedRegions([])
 
     # test folding and unfolding setext heading level 2
@@ -237,7 +238,7 @@ class FoldingTestCase(DereferrablePanelTestCase):
         self.assertFoldedRegions([(547, 567)])
 
         # unfold heading
-        self.view.run_command("mde_fold_section")
+        self.view.run_command("mde_unfold_section")
         self.assertFoldedRegions([])
 
     # test folding and unfolding by level
@@ -465,7 +466,7 @@ class FoldingTestCase(DereferrablePanelTestCase):
 
         # unfold heading
         self.setCaretTo(row, 1)
-        self.view.run_command("mde_fold_section")
+        self.view.run_command("mde_unfold_section")
         self.assertFoldedRegions(expected_regions)
 
         # fold heading
@@ -493,7 +494,7 @@ class FoldingTestCase(DereferrablePanelTestCase):
 
         # unfold "1 Heading" with caret before folding marker
         self.setCaretTo(1, 11)
-        self.view.run_command("mde_fold_section")
+        self.view.run_command("mde_unfold_section")
         self.assertFoldedRegions([
             (37, 52),
             (98, 357),
@@ -517,7 +518,7 @@ class FoldingTestCase(DereferrablePanelTestCase):
 
         # unfold "1 Heading" with caret after folding marker
         self.setCaretTo(40, 1)
-        self.view.run_command("mde_fold_section")
+        self.view.run_command("mde_unfold_section")
         self.assertFoldedRegions([
             (37, 52),
             (98, 357),
@@ -531,7 +532,7 @@ class FoldingTestCase(DereferrablePanelTestCase):
 
         # unfold "1.1 Heading"
         self.setCaretTo(9, 9)
-        self.view.run_command("mde_fold_section")
+        self.view.run_command("mde_unfold_section")
         self.assertFoldedRegions([
             (37, 52),
             (117, 274),
@@ -546,7 +547,7 @@ class FoldingTestCase(DereferrablePanelTestCase):
 
         # unfold "1.1.2 Heading"
         self.setCaretTo(25, 9)
-        self.view.run_command("mde_fold_section")
+        self.view.run_command("mde_unfold_section")
         self.assertFoldedRegions([
             (37, 52),
             (117, 274),
