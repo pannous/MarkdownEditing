@@ -509,7 +509,7 @@ class md013(mddef):
 
     def __init__(self, settings, view):
         if settings == 0:
-            self.settings = view.settings().get("wrap_width", 80)
+            self.settings = view.settings() #.get("wrap_width", 100)
         else:
             self.settings = settings
 

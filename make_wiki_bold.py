@@ -6,10 +6,12 @@ try:
 except ImportError:
     from wiki_page import *
 
-try:
-    from MarkdownEditing.mdeutils import *
-except ImportError:
-    from mdeutils import *
+# try:
+# from mdeutils import *
+# except ImportError:
+#     from MarkdownEditing.mdeutils import *
+# except ModuleNotFoundError:
+    
 
 
 class MakeBoldCommand(MDETextCommand):
