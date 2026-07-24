@@ -8,13 +8,7 @@ try:
 except ImportError:
     from wiki_page import *
 
-try:
-    from MarkdownEditing.mdeutils import *
-except ImportError:
-    from mdeutils import *
-
-
-class OpenPageCommand(MDETextCommand):
+class OpenPageCommand(sublime_plugin.TextCommand):
     def is_visible(self):
         # return True      catastrophic!          
         """Return True if cursor is on a wiki page reference."""

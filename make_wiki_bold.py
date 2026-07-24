@@ -14,7 +14,7 @@ except ImportError:
     
 
 
-class MakeBoldCommand(MDETextCommand):
+class MakeBoldCommand(sublime_plugin.TextCommand):
     # def is_visible(self):
     #     return True
 

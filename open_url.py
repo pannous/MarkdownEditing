@@ -1,3 +1,4 @@
+import string
 import sublime
 import sublime_plugin
 import webbrowser
@@ -9,6 +10,11 @@ except ImportError:
 
 # http://test.com
 
+# ASCII punctuation/whitespace that ends a word/page-name, except '.' and '-'
+# which are kept since sign combinations use them, e.g. 𓇴-cob.ra.md
+KEEP_CHARS = ".-"
+TERMINATORS = set(string.whitespace + string.punctuation) - set(KEEP_CHARS)
+
 class OpenUrlCommand(sublime_plugin.TextCommand):
     def run(self, edit):
         s = self.view.sel()[0]
@@ -18,7 +24,7 @@ class OpenUrlCommand(sublime_plugin.TextCommand):
         end = s.b
 
         view_size = self.view.size()
-        terminator = ['\t', ' ', '\"', '\'', '(', ')']
+        terminator = TERMINATORS
 
         while (start > 0
                 and not self.view.substr(start - 1) in terminator

@@ -1,0 +1,34 @@
+[
+
+    {
+        "button": "button2", "count": 2,
+        "press_command": "select",
+        "command": "open_url",
+    },
+    {
+        "button": "button4", "count": 2,
+        "press_command": "select",
+        "command": "open_url",
+    },
+    {
+        "button": "button5", "count": 2,
+        "press_command": "select",
+        "command": "open_url",
+    },
+    {
+        "button": "button1", "count": 2, "modifiers": ["ctrl"],
+        // "command": "open_page",
+        "press_command": "select",
+        "command": "open_url",
+    },
+    {
+        "button": "button1", "count": 2, "modifiers": ["alt"],
+        "press_command": "select",
+        "command": "open_url",
+    },
+    {
+        "button": "button1", "count": 1, "modifiers": ["super"],
+        "press_command": "select",
+        "command": "open_url",
+    }
+]
