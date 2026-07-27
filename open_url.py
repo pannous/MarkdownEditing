@@ -16,16 +16,15 @@ except ImportError:
 KEEP_CHARS = ".-%"
 TERMINATORS = set(string.whitespace + string.punctuation) - set(KEEP_CHARS)
 
+# Once a token is confirmed to be a real http(s) scheme, ':' and '/' are part
+# of the URL too (e.g. the "://" and path separators), so they stop being
+# terminators for that expansion only - everything else still cuts a URL off.
+URL_KEEP_CHARS = KEEP_CHARS + ":/"
+URL_TERMINATORS = set(string.whitespace + string.punctuation) - set(URL_KEEP_CHARS)
+
 class OpenUrlCommand(sublime_plugin.TextCommand):
-    def run(self, edit):
-        s = self.view.sel()[0]
-
-        # Expand selection to possible URL
-        start = s.a
-        end = s.b
-
+    def expand(self, start, end, terminator):
         view_size = self.view.size()
-        terminator = TERMINATORS
 
         while (start > 0
                 and not self.view.substr(start - 1) in terminator
@@ -37,8 +36,20 @@ class OpenUrlCommand(sublime_plugin.TextCommand):
                 and self.view.classify(end) & sublime.CLASS_LINE_END == 0):
             end += 1
 
-        # Check if this is URL
+        return start, end
+
+    def run(self, edit):
+        s = self.view.sel()[0]
+
+        # Expand selection to possible URL/page-name
+        start, end = self.expand(s.a, s.b, TERMINATORS)
         url = self.view.substr(sublime.Region(start, end))
+
+        # If this is really an http(s) scheme, re-expand keeping ':' and '/'
+        # so the full URL (not just "http") is captured.
+        if url in ("http", "https") and self.view.substr(sublime.Region(end, end + 3)) == "://":
+            start, end = self.expand(start, end, URL_TERMINATORS)
+            url = self.view.substr(sublime.Region(start, end))
 
         if url.startswith(('http://', 'https://')):
             print("URL : " + url)
