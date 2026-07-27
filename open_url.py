@@ -10,9 +10,10 @@ except ImportError:
 
 # http://test.com
 
-# ASCII punctuation/whitespace that ends a word/page-name, except '.' and '-'
-# which are kept since sign combinations use them, e.g. 𓇴-cob.ra.md
-KEEP_CHARS = ".-"
+# ASCII punctuation/whitespace that ends a word/page-name, except '.', '-' and '%'
+# which are kept since sign combinations use '.'/'-' (e.g. 𓇴-cob.ra.md) and URLs
+# use '%' for percent-encoding (e.g. https://phis.me/sigla/document/ARKH%201a/)
+KEEP_CHARS = ".-%"
 TERMINATORS = set(string.whitespace + string.punctuation) - set(KEEP_CHARS)
 
 class OpenUrlCommand(sublime_plugin.TextCommand):
