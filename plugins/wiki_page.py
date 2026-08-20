@@ -169,7 +169,7 @@ class WikiPage:
             scope_region = self.view.extract_scope(pos)
             if not scope_region.empty():
                 text_on_cursor = self.view.substr(scope_region)
-                return text_on_cursor.strip(string.punctuation)
+                return text_on_cursor.strip("[] \t")
 
         return None
 
@@ -197,15 +197,22 @@ class WikiPage:
             "mde.wikilinks.markdown_extension", DEFAULT_MARKDOWN_EXTENSION
         )
 
+        # A pagename may include subdirectories, e.g. "notes/char_grid_calibration.md" -
+        # match the basename against filenames, then require the containing
+        # directory to end with the given subdirectory so the right file wins.
+        subdir, basename = os.path.split(pagename)
+
         # Optionally strip extension...
-        if pagename.endswith(markdown_extension):
-            search_pattern = "^%s$" % pagename
+        if basename.endswith(markdown_extension):
+            search_pattern = "^%s$" % re.escape(basename)
         else:
-            search_pattern = "^%s%s$" % (pagename, markdown_extension)
+            search_pattern = "^%s%s$" % (re.escape(basename), re.escape(markdown_extension))
 
         # Scan directory tree for files that match the pagename...
         results = []
         for dirname, _, files in self.list_dir_tree(self.current_dir):
+            if subdir and not dirname.replace(os.sep, "/").endswith(subdir.replace(os.sep, "/")):
+                continue
             for file in files:
                 if re.search(search_pattern, file):
                     filename = os.path.join(dirname, file)
@@ -264,7 +271,12 @@ class WikiPage:
             "mde.wikilinks.markdown_extension", DEFAULT_MARKDOWN_EXTENSION
         )
 
-        filename = os.path.join(current_dir, pagename + markdown_extension)
+        if pagename.endswith(markdown_extension):
+            filename = os.path.join(current_dir, pagename)
+        else:
+            filename = os.path.join(current_dir, pagename + markdown_extension)
+
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
 
         new_view = self.view.window().new_file()
         new_view.retarget(filename)

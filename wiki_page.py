@@ -23,8 +23,8 @@ class WikiPage:
                 if(len(lines)>1):
                     print("please click on word first")
                     return self.view.sel()
-                else:    
-                    return text_on_cursor.strip(string.punctuation)
+                else:
+                    return text_on_cursor.strip("[] \t")
 
         return None
         
@@ -64,24 +64,28 @@ class WikiPage:
 
         markdown_extension = self.view.settings().get("mde.wikilinks.markdown_extension", DEFAULT_MARKDOWN_EXTENSION)
 
+        # A pagename may include subdirectories, e.g. "notes/char_grid_calibration.md" -
+        # match the basename against filenames, then require the containing
+        # directory to end with the given subdirectory so the right file wins.
+        subdir, basename = os.path.split(pagename)
 
         # Optionally strip extension...
-        try:
-            if pagename.endswith(markdown_extension):
-                search_pattern = "^%s$" % pagename
-            else:
-                search_pattern = "^%s%s$" % (pagename, markdown_extension)
-        except: pass
+        if basename.endswith(markdown_extension):
+            search_pattern = "^%s$" % re.escape(basename)
+        else:
+            search_pattern = "^%s%s$" % (re.escape(basename), re.escape(markdown_extension))
 
-        # Scan directory tree for files that match the pagename...
         results = []
-        for dirname, _, files in self.list_dir_tree(self.current_dir):
-            for file in files:
-                if re.search(search_pattern, file, re.IGNORECASE):
-                    filename = os.path.join(dirname, file)
-                    results.append([self.extract_pagename(filename), filename])
+        for search_dir in (self.current_dir, self.current_dir + "/auto"):
+            results.extend(self.scan_dir_tree_for_pattern(search_dir, search_pattern, subdir))
 
-        for dirname, _, files in self.list_dir_tree(self.current_dir+"/auto"):
+        return results
+
+    def scan_dir_tree_for_pattern(self, search_dir, search_pattern, subdir=""):
+        results = []
+        for dirname, _, files in self.list_dir_tree(search_dir):
+            if subdir and not dirname.replace(os.sep, "/").endswith(subdir.replace(os.sep, "/")):
+                continue
             for file in files:
                 if re.search(search_pattern, file, re.IGNORECASE):
                     filename = os.path.join(dirname, file)
@@ -142,7 +146,12 @@ class WikiPage:
 
         markdown_extension = self.view.settings().get("mde.wikilinks.markdown_extension", DEFAULT_MARKDOWN_EXTENSION)
 
-        filename = os.path.join(current_dir, pagename + markdown_extension)
+        if pagename.endswith(markdown_extension):
+            filename = os.path.join(current_dir, pagename)
+        else:
+            filename = os.path.join(current_dir, pagename + markdown_extension)
+
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
 
         new_view = self.view.window().new_file()
         new_view.retarget(filename)
