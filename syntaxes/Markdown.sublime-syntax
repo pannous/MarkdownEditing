@@ -3822,6 +3822,10 @@ contexts:
     - match: \]\]
       scope: punctuation.definition.link.end.markdown
       pop: 1
+    # Underscores inside a wiki link (e.g. [[file_name_id.md]]) are literal
+    # path/id characters, never emphasis delimiters - consume them plainly
+    # before the emphasis rules in link-text-allow-image get a chance.
+    - match: _+
     - include: link-text-allow-image
 
 ###[ INLINE: LINK/IMAGE PROTOTYPES ]##########################################
