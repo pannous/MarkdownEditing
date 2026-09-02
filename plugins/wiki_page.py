@@ -169,7 +169,7 @@ class WikiPage:
             scope_region = self.view.extract_scope(pos)
             if not scope_region.empty():
                 text_on_cursor = self.view.substr(scope_region)
-                return text_on_cursor.strip("[] \t")
+                return text_on_cursor.strip("[]“”‘’'\" \t")
 
         return None
 
