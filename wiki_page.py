@@ -17,6 +17,20 @@ def current_dir_of(view):
         return os.path.dirname(".")
 
 
+WORD_SEPARATORS = " -_"
+
+
+def escape_pagename(name):
+    """Any of " -_" in a wiki link matches any of them in a filename."""
+    separators = "[%s]" % re.escape(WORD_SEPARATORS)
+    return "".join(separators if char in WORD_SEPARATORS else re.escape(char) for char in name)
+
+
+def slugify(name):
+    """Filename spelling for a new page: spaces become dashes."""
+    return name.replace(" ", "-")
+
+
 def search_dirs_for(current_dir):
     dirs = [current_dir, os.path.join(current_dir, "auto")]
     dirs.extend(d for d in FALLBACK_SEARCH_DIRS if os.path.isdir(d) and d != current_dir)
@@ -81,9 +95,9 @@ class WikiPage:
 
         # Optionally strip extension...
         if basename.endswith(markdown_extension):
-            search_pattern = "^%s$" % re.escape(basename)
+            search_pattern = "^%s$" % escape_pagename(basename)
         else:
-            search_pattern = "^%s%s$" % (re.escape(basename), re.escape(markdown_extension))
+            search_pattern = "^%s%s$" % (escape_pagename(basename), re.escape(markdown_extension))
 
         results = []
         for search_dir in search_dirs_for(self.current_dir):
@@ -151,6 +165,7 @@ class WikiPage:
 
         markdown_extension = self.view.settings().get("mde.wikilinks.markdown_extension", DEFAULT_MARKDOWN_EXTENSION)
 
+        pagename = slugify(pagename)
         if pagename.endswith(markdown_extension):
             filename = os.path.join(current_dir, pagename)
         else:

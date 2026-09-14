@@ -6,7 +6,7 @@ sys.path.insert(0, PLUGIN_DIR)
 sys.modules.setdefault("sublime", types.ModuleType("sublime"))
 sys.modules.setdefault("sublime_plugin", types.ModuleType("sublime_plugin"))
 
-from wiki_page import WikiPage
+from wiki_page import WikiPage, slugify
 
 CHINESE_DIR = "/Users/me/Documents/uruk_egypt.nosync/chinese"
 FALLBACK_DIR = "/Users/me/Documents/uruk_egypt.nosync/docs"
@@ -35,6 +35,13 @@ class WikiPageResolutionTest(unittest.TestCase):
     def test_falls_back_when_page_is_absent_locally(self):
         hits = self.resolve(os.path.join(CHINESE_DIR, "progress.md"), "_Sidebar")
         self.assertEqual(hits, [os.path.join(FALLBACK_DIR, "_Sidebar.md")])
+
+    def test_spaces_in_link_match_dashes_in_filename(self):
+        hits = self.resolve(os.path.join(FALLBACK_DIR, "index.md"), "amun ra")
+        self.assertEqual(hits, [os.path.join(FALLBACK_DIR, "amun-ra.md")])
+
+    def test_new_page_name_uses_dashes_for_spaces(self):
+        self.assertEqual(slugify("amun ra"), "amun-ra")
 
 
 if __name__ == "__main__":
