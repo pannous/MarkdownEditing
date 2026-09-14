@@ -6,6 +6,21 @@ import re
 DEFAULT_MARKDOWN_EXTENSION = '.md'
 PAGE_REF_FORMAT = '[[%s]]'
 DEFAULT_HOME_PAGE = "HomePage"
+# Searched only when a page isn't found next to the current file.
+FALLBACK_SEARCH_DIRS = ["/Users/me/Documents/uruk_egypt.nosync/docs"]
+
+
+def current_dir_of(view):
+    try:
+        return os.path.dirname(view.file_name())
+    except:
+        return os.path.dirname(".")
+
+
+def search_dirs_for(current_dir):
+    dirs = [current_dir, os.path.join(current_dir, "auto")]
+    dirs.extend(d for d in FALLBACK_SEARCH_DIRS if os.path.isdir(d) and d != current_dir)
+    return dirs
 
 
 class WikiPage:
@@ -54,12 +69,7 @@ class WikiPage:
         pagename = pagename.replace('\\', os.sep).replace(os.sep+os.sep, os.sep).strip()
 
         self.current_file = self.view.file_name()
-        try:
-            self.current_dir = os.path.dirname(self.current_file)
-        except:
-            self.current_dir = os.path.dirname(".")
-        if "uruk_egypt" in self.current_dir and not "docs" in self.current_dir:
-            self.current_dir = os.path.dirname("/Users/me/Documents/uruk_egypt/docs/")
+        self.current_dir = current_dir_of(self.view)
         print("Locating page '%s' in: %s" % (pagename, self.current_dir) )
 
         markdown_extension = self.view.settings().get("mde.wikilinks.markdown_extension", DEFAULT_MARKDOWN_EXTENSION)
@@ -76,8 +86,10 @@ class WikiPage:
             search_pattern = "^%s%s$" % (re.escape(basename), re.escape(markdown_extension))
 
         results = []
-        for search_dir in (self.current_dir, self.current_dir + "/auto"):
+        for search_dir in search_dirs_for(self.current_dir):
             results.extend(self.scan_dir_tree_for_pattern(search_dir, search_pattern, subdir))
+            if results:
+                break
 
         return results
 
@@ -135,14 +147,7 @@ class WikiPage:
 
     def open_new_file(self, pagename):
         current_syntax = self.view.settings().get('syntax')
-        current_file = self.view.file_name()
-        try:
-            current_dir = os.path.dirname(current_file)
-        except:
-            current_dir = os.path.dirname(".")
-
-        if "uruk_egypt" in current_dir and not "docs" in current_dir:
-            current_dir = os.path.dirname("/Users/me/Documents/uruk_egypt/docs/")
+        current_dir = current_dir_of(self.view)
 
         markdown_extension = self.view.settings().get("mde.wikilinks.markdown_extension", DEFAULT_MARKDOWN_EXTENSION)
 
