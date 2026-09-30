@@ -53,7 +53,7 @@ class WikiPage:
                     print("please click on word first")
                     return self.view.sel()
                 else:
-                    return text_on_cursor.strip("[] \t")
+                    return text_on_cursor.strip("[]“”‘’'\" \t")
 
         return None
         
@@ -65,8 +65,9 @@ class WikiPage:
         if "\n" in pagename:
             print("newline in pagename … abort!")
             return []
-        if pagename:
-            self.file_list = self.find_files_with_name(pagename)
+        if not pagename:
+            return
+        self.file_list = self.find_files_with_name(pagename)
 
         if len(self.file_list) > 1:
             self.view.window().show_quick_panel(self.file_list, self.open_selected_file)
@@ -143,9 +144,9 @@ class WikiPage:
         link_text = PAGE_REF_FORMAT % pagename
 
         try:
-            if link_text in open(filename).read():
-                return True
-        except:
+            with open(filename, encoding="utf-8") as f:
+                return link_text in f.read()
+        except (OSError, UnicodeDecodeError):
             pass
 
         return False
@@ -177,7 +178,7 @@ class WikiPage:
 
         new_view = self.view.window().new_file()
         new_view.retarget(filename)
-        new_view.run_command('prepare_from_template', {
+        new_view.run_command('mde_prepare_from_template', {
             'title': pagename,
             'template': 'default_page'
         })
@@ -236,7 +237,7 @@ class WikiPage:
             pagename, file = self.file_list[selected_index]
             
             print("Using selected page '%s'" % (pagename))
-            self.view.run_command('replace_selected', {'text': pagename})
+            self.view.run_command('mde_replace_selected', {'text': pagename})
 
 
     def find_matching_files(self, word_region):
