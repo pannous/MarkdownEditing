@@ -10,6 +10,7 @@ from wiki_page import WikiPage, slugify
 
 CHINESE_DIR = "/Users/me/Documents/uruk_egypt.nosync/chinese"
 FALLBACK_DIR = "/Users/me/Documents/uruk_egypt.nosync/docs"
+FIXTURES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
 
 
 class FakeView:
@@ -39,6 +40,10 @@ class WikiPageResolutionTest(unittest.TestCase):
     def test_spaces_in_link_match_dashes_in_filename(self):
         hits = self.resolve(os.path.join(FALLBACK_DIR, "index.md"), "amun ra")
         self.assertEqual(hits, [os.path.join(FALLBACK_DIR, "amun-ra.md")])
+
+    def test_existing_file_with_own_extension_is_used_as_is(self):
+        hits = self.resolve(os.path.join(FIXTURES_DIR, "index.md"), "uniscript.wasp")
+        self.assertEqual(hits, [os.path.join(FIXTURES_DIR, "uniscript.wasp")])
 
     def test_new_page_name_uses_dashes_for_spaces(self):
         self.assertEqual(slugify("amun ra"), "amun-ra")

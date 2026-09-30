@@ -93,9 +93,11 @@ class WikiPage:
         # directory to end with the given subdirectory so the right file wins.
         subdir, basename = os.path.split(pagename)
 
-        # Optionally strip extension...
+        # A name with its own extension, e.g. "uniscript.wasp", may be an existing file as-is.
         if basename.endswith(markdown_extension):
             search_pattern = "^%s$" % escape_pagename(basename)
+        elif "." in basename:
+            search_pattern = "^%s(%s)?$" % (escape_pagename(basename), re.escape(markdown_extension))
         else:
             search_pattern = "^%s%s$" % (escape_pagename(basename), re.escape(markdown_extension))
 
