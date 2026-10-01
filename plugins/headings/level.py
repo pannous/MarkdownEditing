@@ -77,9 +77,9 @@ class MdeChangeHeadingsLevelCommand(MdeTextCommand):
     def _set_level(self, edit, calc_level, select):
         view = self.view
         match_heading_hashes = view.settings().get("mde.match_heading_hashes")
+        # re.VERBOSE, not an inline (?x) after the newline: Python 3.11+ (the 3.14 plugin host) rejects that
         pattern = re.compile(
             r"""
-            (?x)
             ^([ \t>]*)                   # block quotes
             (?:
                 (\#+)                    # leading hashes
@@ -92,7 +92,8 @@ class MdeChangeHeadingsLevelCommand(MdeTextCommand):
                 ([^-+*].*?)? [ \t]*      # no heading nor list item
             )
             $
-            """
+            """,
+            re.VERBOSE,
         )
 
         # One or more selections may span multiple lines each of them to change heading level for.

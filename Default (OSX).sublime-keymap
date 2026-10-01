@@ -454,6 +454,12 @@
 			{ "key": "following_text", "operator": "regex_contains", "operand": "^#+\\s\\S", "match_all": true }
 		]
 	},
+	// shift+tab anywhere in a heading decreases its level, a level 1 heading becomes plain text
+	{ "keys": ["shift+tab"], "command": "mde_change_headings_level", "args": {"by": -1}, "context":
+		[
+			{ "key": "selector", "operator": "equal", "operand": "text.html.markdown markup.heading - meta.frontmatter", "match_all": true }
+		]
+	},
 	{ "keys": ["enter"], "command": "run_macro_file", "args": {"file": "Packages/MarkdownEditing/macros/Add Line and Balance Trailing Hashes.sublime-macro"}, "context":
 		[
 			{ "key": "selector", "operator": "equal", "operand": "text.html.markdown - meta.frontmatter - meta.disable-markdown - markup.raw - markup.kbd", "match_all": true },
