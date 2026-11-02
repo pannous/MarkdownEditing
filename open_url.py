@@ -1,3 +1,4 @@
+import re
 import string
 import sublime
 import sublime_plugin
@@ -18,11 +19,26 @@ except ImportError:
 KEEP_CHARS = "._-%/"
 TERMINATORS = set(string.whitespace + string.punctuation) - set(KEEP_CHARS)
 
-# Once a token is confirmed to be a real http(s) scheme, ':' and '/' are part
-# of the URL too (e.g. the "://" and path separators), so they stop being
-# terminators for that expansion only - everything else still cuts a URL off.
-URL_KEEP_CHARS = KEEP_CHARS + ":/"
-URL_TERMINATORS = set(string.whitespace + string.punctuation) - set(URL_KEEP_CHARS)
+# A URL runs until whitespace or a character that never occurs unescaped in one,
+# so query strings (?id=1&x=2) and fragments (#top) stay attached.
+URL_PATTERN = re.compile(r"https?://[^\s<>\"'`\[\]{}|\\^]+")
+SENTENCE_PUNCTUATION = ".,;:!?"
+
+
+def trim_url(url):
+    """Drop trailing sentence punctuation and a ')' that closes a markdown link, not the URL."""
+    while url and (url[-1] in SENTENCE_PUNCTUATION or (url[-1] == ")" and url.count(")") > url.count("("))):
+        url = url[:-1]
+    return url
+
+
+def url_at(line, column):
+    for match in URL_PATTERN.finditer(line):
+        url = trim_url(match.group())
+        if match.start() <= column <= match.start() + len(url):
+            return url
+    return None
+
 
 class OpenUrlCommand(sublime_plugin.TextCommand):
     def expand(self, start, end, terminator):
@@ -42,22 +58,15 @@ class OpenUrlCommand(sublime_plugin.TextCommand):
 
     def run(self, edit):
         s = self.view.sel()[0]
-
-        # Expand selection to possible URL/page-name
-        start, end = self.expand(s.a, s.b, TERMINATORS)
-        url = self.view.substr(sublime.Region(start, end))
-
-        # If this is really an http(s) scheme, re-expand keeping ':' and '/'
-        # so the full URL (not just "http") is captured.
-        if url in ("http", "https") and self.view.substr(sublime.Region(end, end + 3)) == "://":
-            start, end = self.expand(start, end, URL_TERMINATORS)
-            url = self.view.substr(sublime.Region(start, end))
-
-        if url.startswith(('http://', 'https://')):
+        line = self.view.line(s.a)
+        url = url_at(self.view.substr(line), s.a - line.a)
+        if url:
             print("URL : " + url)
             webbrowser.open_new_tab(url)
-        else:
-            print("file? " + url)
-            wiki_page = WikiPage(self.view)
-            wiki_page.select_page(url)
+            return
+
+        start, end = self.expand(s.a, s.b, TERMINATORS)
+        page_name = self.view.substr(sublime.Region(start, end))
+        print("file? " + page_name)
+        WikiPage(self.view).select_page(page_name)
             
